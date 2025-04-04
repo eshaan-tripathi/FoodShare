@@ -28,7 +28,7 @@ export default function DonateFood() {
         async (position) => {
           const { latitude, longitude } = position.coords;
           try {
-            const API_KEY = "AIzaSyCNbMJcfk6IcsJayqknukXIoWHK5UqaxCI"; // Replace with actual API Key
+            const API_KEY = import.meta.env.VITE_REACT_APP_GOOGLE_API; // Replace with actual API Key
             const response = await axios.get(
               `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${API_KEY}`
             );
