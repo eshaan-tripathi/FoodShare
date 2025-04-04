@@ -13,7 +13,7 @@ export default function AvailableFood() {
   const user = useSelector((state) => state.auth.user);
   const [foodItems, setFoodItems] = useState([]);
   const navigate = useNavigate();
-  const API_KEY = "AIzaSyCNbMJcfk6IcsJayqknukXIoWHK5UqaxCI"; // Store in .env
+   const API_KEY = import.meta.env.VITE_REACT_APP_GOOGLE_API;// Store in .env
 
   useEffect(() => {
     async function fetchFoodItems() {
