@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { loginSuccess } from "../../Redux/authSlice";
 
 const EditProfile = () => {
   const { email } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
+ 
+  const API = import.meta.env.VITE_REACT_APP_API;
   // Profile State
   const [profile, setProfile] = useState({
     name: "",
@@ -16,9 +18,11 @@ const EditProfile = () => {
     phone: "",
     address: "",
   });
-  const [password, setPassword] = useState(""); // Separate state for password
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const locdata = JSON.parse(localStorage.getItem("auth"));
 
   useEffect(() => {
     if (!email) {
@@ -36,10 +40,10 @@ const EditProfile = () => {
 
   const fetchProfile = async (email) => {
     try {
-      const response = await fetch(`${API_URL}/api/profile/${email}`, {
+      const response = await fetch(`${API}/api/user/${email}/edit-profile`, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${locdata.token}`,
         },
       });
 
@@ -64,23 +68,39 @@ const EditProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const updatedData = { ...profile };
-    
-    if (password) {
-      updatedData.password = password; // Include password only if changed
-    }
+
+    const formData = new FormData();
+    formData.append("name", profile.name);
+    formData.append("phone", profile.phone);
+    formData.append("address", profile.address);
+    if (password) formData.append("password", password);
+    if (profile.imageFile) formData.append("image", profile.imageFile);
 
     try {
-      const response = await fetch(`${API_URL}/api/profile/${email}`, {
+      const response = await fetch(`${API}/api/user/${email}/edit-profile`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${locdata.token}`,
         },
-        body: JSON.stringify(updatedData),
+        body: formData,
       });
 
       if (!response.ok) throw new Error("Failed to update profile");
+
+      const updatedUser = await response.json();
+
+      // ✅ Merge old and new user data
+      const mergedUser = { ...user, ...updatedUser };
+
+      // ✅ Dispatch to Redux
+      dispatch(loginSuccess({ user: mergedUser }));
+
+      // ✅ Update localStorage
+      const updatedAuth = {
+        ...locdata,
+        user: mergedUser,
+      };
+      localStorage.setItem("auth", JSON.stringify(updatedAuth));
 
       navigate(`/profile/${email}`);
     } catch (err) {
@@ -102,6 +122,17 @@ const EditProfile = () => {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
+              <label className="block text-gray-300">Profile Image</label>
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={(e) =>
+                  setProfile({ ...profile, imageFile: e.target.files[0] })
+                }
+                className="w-full px-4 py-2 rounded-lg bg-gray-800 text-white border border-gray-600"
+              />
+
               <label className="block text-gray-300">Name</label>
               <input
                 type="text"
@@ -150,7 +181,7 @@ const EditProfile = () => {
               <input
                 type="password"
                 name="password"
-                value={password} // Always empty initially
+                value={password}
                 onChange={handlePasswordChange}
                 placeholder="Enter new password"
                 className="w-full px-4 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring focus:ring-indigo-500"

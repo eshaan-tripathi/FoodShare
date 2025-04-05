@@ -4,16 +4,18 @@ import { logoutUser } from "../../Redux/authSlice"; // ✅ Import logout action
 import { Menu, X, User } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  
+  const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user); // ✅ Get user from Redux
   const dispatch = useDispatch(); // ✅ Redux Dispatch
-
+  console.log(user);
   const handleLogout = () => {
-    dispatch(logoutUser()); // ✅ Logout action triggers Redux update
-
+    dispatch(logoutUser()); 
+    // ✅ Logout action triggers Redux update
+  
     toast.success("Logged out successfully!", {
       position: "top-right",
       autoClose: 3000,
@@ -23,6 +25,7 @@ export default function Navbar() {
       draggable: true,
       theme: "dark",
     });
+    navigate('/');
   };
 
   return (
@@ -47,7 +50,7 @@ export default function Navbar() {
               {/* User Name & Icon (Hoverable) */}
               <div className="flex items-center space-x-2 cursor-pointer hover:text-indigo-500">
                 <User size={20} />
-                <span>Hi, {user.name.split(" ")[0]}</span>
+                <span>Hi, {user?.name.split(" ")[0]}</span>
               </div>
 
               {/* Dropdown on Hover */}

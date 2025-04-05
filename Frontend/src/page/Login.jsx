@@ -10,7 +10,7 @@ export default function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-
+  const API = import.meta.env.VITE_REACT_APP_API;
   useEffect(() => {
     if (user) {
       navigate("/");
@@ -25,7 +25,7 @@ export default function Login() {
     e.preventDefault(); // Prevent form from reloading
   
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch(`${API}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -119,12 +119,24 @@ export default function Login() {
         )}
 
         {!user && (
+          <>
+          <div>
           <p className="text-gray-400 text-center mt-4">
             Don't have an account?{" "}
             <a href="/signup" className="text-indigo-500 hover:underline">
               Sign up
             </a>
           </p>
+          </div>
+          <div>
+          <p className="text-gray-400 text-center mt-4">
+            
+            <a href="/forgotpassword" className="text-indigo-500 hover:underline">
+             Forgot Password
+            </a>
+          </p>
+          </div>
+          </>
         )}
       </div>
 

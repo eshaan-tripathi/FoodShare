@@ -8,7 +8,7 @@ const DonatedFood = () => {
   const [loading, setLoading] = useState(true);
   const user = useSelector((state) => state.auth.user);
   const userEmail = user?.email;
-
+  const API = import.meta.env.VITE_REACT_APP_API;
   useEffect(() => {
     if (!userEmail) return; // Ensure userEmail is available before fetching
 
@@ -19,7 +19,7 @@ const DonatedFood = () => {
         auth = JSON.parse(auth);
         const token = auth.token;
          // Retrieve token from localStorage
-        const response = await fetch(`http://localhost:5000/api/food/donated/${userEmail}`, {
+        const response = await fetch(`${API}/api/food/donated/${userEmail}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

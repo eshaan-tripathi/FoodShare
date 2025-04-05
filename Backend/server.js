@@ -9,7 +9,7 @@ const User = require("./models/User");
 const { profileSearch } = require('./controllers/profileController');
 const { addFood, getClaimedFood, getDonatedFood } = require('./controllers/foodController');
 const app = express();
-
+const userRoutes = require('./routes/userRoutes')
 // Middleware
 const allowedOrigins = ["http://localhost:5173"]; // Add frontend origin
 
@@ -31,10 +31,16 @@ app.use(express.urlencoded({ extended: true })); // Parses form data (important 
 // });
 // Routes
 // Database Connection
+
+const path = require("path");
+
+// ✅ Serve uploaded images statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 connectDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/food', foodRoutes);
-
+app.use('/api/user', userRoutes);
 app.get('/', (req, res) => {
   res.send("Hello World");
 });

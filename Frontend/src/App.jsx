@@ -16,6 +16,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import EditProfile from "./page/EditProfile";
 import ClaimedFood from "./page/ClaimedFood";
 import DonatedFood from "./page/DonatedFood";
+import ForgotPassword from "./page/forgotpassword";
 
 function App() {
   return (
@@ -37,7 +38,7 @@ function App() {
         <Route path="/claimed/:email" element={<ClaimedFood />} />
         <Route path="/donated/:email" element={<DonatedFood />} />
         </Route>
-        
+        <Route path="/forgotpassword" element={<ForgotPassword/>} />
         <Route path="*" element={<NotFound />} /> {/* Wildcard route to catch unknown paths */}
       </Routes>
       <Footer />

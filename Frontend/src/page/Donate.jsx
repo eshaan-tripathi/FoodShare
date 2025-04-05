@@ -8,6 +8,8 @@ import { useSelector } from "react-redux";
 export default function DonateFood() {
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
+  const [locationLoading, setLocationLoading] = useState(false);
+
   const [foodData, setFoodData] = useState({
     foodName: "",
     category: "Human",
@@ -15,44 +17,45 @@ export default function DonateFood() {
     location: "",
     phone: "",
   });
-
+  const API_KEY = import.meta.env.VITE_REACT_APP_GOOGLE_API;
+  const API = import.meta.env.VITE_REACT_APP_API;
   let data = JSON.parse(localStorage.getItem("auth"));
-
+  
   const handleChange = (e) => {
     setFoodData({ ...foodData, [e.target.name]: e.target.value });
   };
 
   const getLocation = () => {
     if ("geolocation" in navigator) {
+      setLocationLoading(true); // Start loader
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
           try {
-            const API_KEY = "AIzaSyCNbMJcfk6IcsJayqknukXIoWHK5UqaxCI"; // Replace with actual API Key
             const response = await axios.get(
               `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${API_KEY}`
             );
-            console.log("Google API Response:", response.data);
   
             if (response.data.status === "OK" && response.data.results.length > 0) {
-              setFoodData({
-                ...foodData,
+              setFoodData((prev) => ({
+                ...prev,
                 location: response.data.results[0].formatted_address,
-                latitude, 
+                latitude,
                 longitude,
-              });
+              }));
               toast.success("Location fetched successfully!");
             } else {
               toast.error("Could not fetch exact location.");
             }
           } catch (error) {
-            console.error("Google API Error:", error);
             toast.error("Failed to fetch location.");
+          } finally {
+            setLocationLoading(false); // Stop loader
           }
         },
         (error) => {
-          console.error("Geolocation Error:", error);
           toast.error("Please allow location access.");
+          setLocationLoading(false); // Stop loader even on error
         },
         { enableHighAccuracy: true }
       );
@@ -61,12 +64,14 @@ export default function DonateFood() {
     }
   };
   
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
       await axios.post(
-        "http://localhost:5000/api/food/add",
+        `${API}/api/food/add`,
         {
           ...foodData,
           donorContactNo: foodData.phone,
@@ -75,14 +80,27 @@ export default function DonateFood() {
           headers: { Authorization: `Bearer ${data.token}` },
         }
       );
+  
       toast.success("Food donated successfully!");
+  
+      // Clear form fields ✅
+      setFoodData({
+        foodName: "",
+        category: "Human",
+        quantity: "",
+        location: "",
+        phone: "",
+      });
+  
+      // Redirect after a short delay ✅
       setTimeout(() => {
-        navigate('/food-available');
-      }, 2000);
+        navigate(`/donated/${user.email}`);
+      }, 1000);
     } catch (error) {
       toast.error("Failed to donate food");
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4">
@@ -131,12 +149,44 @@ export default function DonateFood() {
              disabled
             />
             <button
-              type="button"
-              onClick={getLocation}
-              className="bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-lg font-semibold"
-            >
-              Get Location
-            </button>
+  type="button"
+  onClick={getLocation}
+  disabled={locationLoading}
+  className={`px-4 py-2 rounded-lg font-semibold transition duration-300 ${
+    locationLoading
+      ? "bg-gray-500 cursor-not-allowed"
+      : "bg-indigo-500 hover:bg-indigo-600"
+  }`}
+>
+  {locationLoading ? (
+    <span className="flex items-center gap-2">
+      <svg
+        className="animate-spin h-5 w-5 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        />
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8H4z"
+        />
+      </svg>
+      Fetching...
+    </span>
+  ) : (
+    "Get Location"
+  )}
+</button>
+
           </div>
           <input
             type="text"

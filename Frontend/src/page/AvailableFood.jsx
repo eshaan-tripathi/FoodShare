@@ -12,94 +12,141 @@ const defaultCenter = { lat: 20.5937, lng: 78.9629 }; // Default center (India)
 export default function AvailableFood() {
   const user = useSelector((state) => state.auth.user);
   const [foodItems, setFoodItems] = useState([]);
+  const [loading, setLoading] = useState(true); // <-- Added loading state
   const navigate = useNavigate();
-  const API_KEY = "AIzaSyCNbMJcfk6IcsJayqknukXIoWHK5UqaxCI"; // Store in .env
+  const [claimingId, setClaimingId] = useState(null);
+
+  const API_KEY = import.meta.env.VITE_REACT_APP_GOOGLE_API;
+  const API = import.meta.env.VITE_REACT_APP_API;
 
   useEffect(() => {
     async function fetchFoodItems() {
       try {
-        const response = await axios.get("http://localhost:5000/api/food/available");
-        const filteredFoodItems = response.data.filter(item => item.emailid !== user.email);
+        const response = await axios.get(`${API}/api/food/available`);
+        const filteredFoodItems = response.data.filter(
+          (item) => item.emailid !== user.email
+        );
         setFoodItems(filteredFoodItems);
       } catch (error) {
         toast.error("Failed to fetch food items");
+      } finally {
+        setLoading(false); // <-- Stop loading
       }
     }
     fetchFoodItems();
   }, []);
 
   const handleClaimFood = async (foodId) => {
+    setClaimingId(foodId); // Start loading
     try {
       let auth = localStorage.getItem("auth");
       auth = JSON.parse(auth);
-      const token = auth.token; // Retrieve the token
-  
+      const token = auth.token;
+
       await axios.put(
-        `http://localhost:5000/api/food/claim/${foodId}`,
+        `${API}/api/food/claim/${foodId}`,
         {},
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Attach token
+            Authorization: `Bearer ${token}`,
           },
-          withCredentials: true, // Ensure credentials are included
+          withCredentials: true,
         }
       );
-  
+
       toast.success("Food claimed successfully!");
       setFoodItems((prev) => prev.filter((item) => item._id !== foodId));
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to claim food");
-      console.log(foodId);
+    } finally {
+      setClaimingId(null); // End loading
     }
   };
-  
 
-  const mapCenter = foodItems.length > 0
-    ? { lat: Number(foodItems[0].latitude), lng: Number(foodItems[0].longitude) }
-    : defaultCenter;
+  const mapCenter =
+    foodItems.length > 0
+      ? { lat: Number(foodItems[0].latitude), lng: Number(foodItems[0].longitude) }
+      : defaultCenter;
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-900 px-4 py-6">
       <h2 className="text-3xl font-bold text-indigo-500 mb-6">Available Food</h2>
 
-      {/* Food List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
-        {foodItems.length > 0 ? (
-          foodItems.map((item) => (
-            <div key={item._id} className="bg-gray-800 text-white p-4 rounded-lg shadow-lg">
-              <a href={`/profile/${item.emailid}`}>
-                <img src={item.image} alt={item.name} className="w-full h-40 object-cover rounded" />
-                <p className="text-indigo-300">Donor: {item.donorName}</p>
-                <h3 className="text-xl font-semibold text-indigo-400 mt-2">{item.name}</h3>
-                <p className="text-gray-400">{item.location}</p>
-                <p className="text-green-400 font-bold">{item.quantity} kg available</p>
-                <p className="text-yellow-300">Category: {item.category}</p>
-                <p className="text-gray-300">Posted: {new Date(item.postedAt).toLocaleString()}</p>
-                <p className="text-indigo-200">Contact: {item.donorContactNo}</p>
-              </a>
-              <button 
-                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-2"
-                onClick={() => handleClaimFood(item._id)}
-
+      {/* Loader */}
+      {loading ? (
+        <div className="text-white flex flex-col items-center justify-center mt-10">
+          <div className="animate-spin h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full mb-2"></div>
+          <p>Loading available food...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
+          {foodItems.length > 0 ? (
+            foodItems.map((item) => (
+              <div
+                key={item._id}
+                className="bg-gray-800 text-white p-4 rounded-lg shadow-lg"
               >
-                Claim
-              </button>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-400">No food items available.</p>
-        )}
-      </div>
+                <a href={`/profile/${item.emailid}`}>
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-40 object-cover rounded"
+                  />
+                  <p className="text-indigo-300">Donor: {item.donorName}</p>
+                  <h3 className="text-xl font-semibold text-indigo-400 mt-2">
+                    {item.name}
+                  </h3>
+                  <p className="text-gray-400">{item.location}</p>
+                  <p className="text-green-400 font-bold">
+                    {item.quantity} kg available
+                  </p>
+                  <p className="text-yellow-300">Category: {item.category}</p>
+                  <p className="text-gray-300">
+                    Posted: {new Date(item.postedAt).toLocaleString()}
+                  </p>
+                  <p className="text-indigo-200">
+                    Contact: {item.donorContactNo}
+                  </p>
+                </a>
+                <button
+                  className={`${
+                    claimingId === item._id
+                      ? "bg-gray-500"
+                      : "bg-green-600 hover:bg-green-700"
+                  } text-white font-bold py-2 px-4 rounded mt-2 flex items-center justify-center`}
+                  onClick={() => handleClaimFood(item._id)}
+                  disabled={claimingId === item._id}
+                >
+                  {claimingId === item._id ? (
+                    <span className="animate-spin mr-2 w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span>
+                  ) : (
+                    "Claim"
+                  )}
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-400">No food items available.</p>
+          )}
+        </div>
+      )}
 
       {/* Google Maps */}
       <div className="w-full max-w-4xl mt-6">
         <LoadScriptNext googleMapsApiKey={API_KEY}>
-          <GoogleMap mapContainerStyle={mapContainerStyle} center={mapCenter} zoom={10}>
+          <GoogleMap
+            mapContainerStyle={mapContainerStyle}
+            center={mapCenter}
+            zoom={10}
+          >
             {foodItems.map((item) =>
               item.latitude && item.longitude ? (
                 <Marker
                   key={item._id}
-                  position={{ lat: Number(item.latitude), lng: Number(item.longitude) }}
+                  position={{
+                    lat: Number(item.latitude),
+                    lng: Number(item.longitude),
+                  }}
                   title={item.name}
                 />
               ) : null

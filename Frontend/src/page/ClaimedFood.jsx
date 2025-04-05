@@ -9,13 +9,14 @@ const ClaimedFood = () => {
   const [loading, setLoading] = useState(true);
   const user = useSelector((state) => state.auth.user);
   const userEmail = user?.email;
+  const API = import.meta.env.VITE_REACT_APP_API;
   useEffect(() => {
     const fetchClaimedFood = async () => {
       try {
         let auth = localStorage.getItem("auth");
         auth = JSON.parse(auth);
         const token = auth.token;
-        const response = await fetch(`http://localhost:5000/api/food/claimed/${userEmail}`, {
+        const response = await fetch(`${API}/api/food/claimed/${userEmail}`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",

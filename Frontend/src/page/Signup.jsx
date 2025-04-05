@@ -9,11 +9,11 @@ export default function Signup() {
     name: "",
     phone: "",
     email: "",
-    address:"",
+    address: "",
     password: "",
-    
   });
-
+  const [image, setImage] = useState(null); // ⬅️ Image state
+  const API = import.meta.env.VITE_REACT_APP_API;
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -21,32 +21,47 @@ export default function Signup() {
     });
   };
 
+  const handleImageChange = (e) => {
+    setImage(e.target.files[0]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formData.name || !formData.phone || !formData.email || !formData.password || !formData.address) {
+  
+    const { name, phone, email, address, password } = formData;
+  
+    if (!name || !phone || !email || !password || !address) {
       toast.error("All fields are required!");
       return;
     }
   
-    if (formData.password.length < 6) {
+    if (password.length < 6) {
       toast.error("Password must be at least 6 characters!");
       return;
     }
   
+    const formPayload = new FormData();
+    formPayload.append("name", name);
+    formPayload.append("phone", phone);
+    formPayload.append("email", email);
+    formPayload.append("address", address);
+    formPayload.append("password", password);
+    if (image) {
+      formPayload.append("image", image);
+    }
+  
     try {
-      const response = await fetch("http://localhost:5000/api/auth/register", {
+      const response = await fetch(`${API}/api/auth/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: formPayload, // DO NOT set Content-Type manually
       });
   
       const data = await response.json();
-      console.log(data)
+  
       if (response.ok) {
         toast.success("User registered successfully!");
         setFormData({ name: "", phone: "", email: "", password: "", address: "" });
-       // navigate("/");
+        setImage(null);
       } else {
         toast.error(`Signup failed: ${data.message}`);
       }
@@ -56,74 +71,38 @@ export default function Signup() {
     }
   };
   
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4 py-4">
       <div className="bg-gray-800 text-white p-8 rounded-2xl shadow-lg max-w-md w-full">
         <h2 className="text-3xl font-bold text-indigo-500 text-center mb-6">Create an Account</h2>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="block text-gray-400 mb-1">Full Name</label>
-            <input
-              type="text"
-              name="name"
-              placeholder="Enter your name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              required
-            />
-          </div>
+        <form className="space-y-4" onSubmit={handleSubmit} encType="multipart/form-data">
+          {/* Existing Inputs */}
+          {["name", "phone", "email", "password", "address"].map((field) => (
+            <div key={field}>
+              <label className="block text-gray-400 mb-1 capitalize">{field}</label>
+              <input
+                type={field === "email" ? "email" : field === "password" ? "password" : "text"}
+                name={field}
+                placeholder={`Enter your ${field}`}
+                value={formData[field]}
+                onChange={handleChange}
+                className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                required
+              />
+            </div>
+          ))}
 
+          {/* Image Upload Input */}
           <div>
-            <label className="block text-gray-400 mb-1">Phone Number</label>
+            <label className="block text-gray-400 mb-1">Profile Image</label>
             <input
-              type="tel"
-              name="phone"
-              placeholder="Enter your phone number"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-400 mb-1">Email</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-400 mb-1">Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-400 mb-1">Address</label>
-            <input
-              type="text"
-              name="address"
-              placeholder="Enter your address"
-              value={formData.address}
-              onChange={handleChange}
-              className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              required
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="w-full bg-gray-700 text-white p-2 rounded-lg"
+              
             />
           </div>
 
@@ -133,7 +112,8 @@ export default function Signup() {
         </form>
 
         <p className="text-gray-400 text-center mt-4">
-          Already have an account? <a href="/login" className="text-indigo-500 hover:underline">Log in</a>
+          Already have an account?{" "}
+          <a href="/login" className="text-indigo-500 hover:underline">Log in</a>
         </p>
       </div>
     </div>

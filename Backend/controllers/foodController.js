@@ -3,6 +3,8 @@ const User = require("../models/User");
 const claimed = require('../models/ClaimedFood');
 const ClaimedFood = require("../models/ClaimedFood");
 const DonatedFood = require("../models/DonatedFood");
+const nodemailer = require('nodemailer');
+
 exports.addFood = async (req, res) => {
   try {
     const { foodName, category, quantity, location, phone,latitude,longitude } = req.body;
@@ -78,12 +80,15 @@ exports.claimFood = async (req, res) => {
   try {
     const food = await Food.findById(id);
     if (!food) return res.status(404).json({ message: "Food item not found" });
+    const user = await User.findById(req.user.userId);
 
-    const claimerEmail = req.user.email;
-    const claimerName = req.user.name;
-    const claimerId = req.user.userId;
+    console.log(user.name);
+    const claimerEmail = user.email;
+    const claimerName = user.name;
 
-    // Create a new claimed food entry
+    const claimerPhone = user.phone;
+    const claimerAddress = user.address;
+    
     const claimedFood = new claimed({
       name: food.name,
       category: food.category,
@@ -98,7 +103,7 @@ exports.claimFood = async (req, res) => {
       emailid: claimerEmail, // Store claimer's email
       claimerName:claimerName,
       status: "Claimed",
-      claimedBy: claimerId,
+     
       claimedAt: new Date()
     });
 
@@ -109,19 +114,54 @@ exports.claimFood = async (req, res) => {
     await DonatedFood.findOneAndUpdate(
       {
         name: food.name,
+        
         donorDetails: food.donorDetails,
         status: "Donated"
       },
       {
         $set: {
           status: "Claimed",
-          claimedBy: claimerId,
+          claimerName: claimerName,
           claimedAt: new Date(),
           claimerEmail: claimerEmail // Add this field to your schema if you want
         }
       }
     );
-
+   
+    const transporter = nodemailer.createTransport({
+      service: 'gmail', // or any SMTP
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+    
+    const mailOptions = {
+      from: `"Food Share App" <${process.env.EMAIL_USER}>`,
+      to: food.emailid,
+      subject: "Your food has been claimed!",
+      html: `
+        <h3>Food Claimed: ${food.name}</h3>
+        <p><strong>Claimer Name:</strong> ${claimerName}</p>
+        <p><strong>Email:</strong> ${claimerEmail}</p>
+        <p><strong>Phone:</strong> ${claimerPhone}</p>
+        <p><strong>Location:</strong> ${claimerAddress}</p>
+        <hr>
+        <p>Please coordinate the pickup/delivery. Thank you for donating!</p>
+      `,
+    };
+    console.log(process.env.EMAIL_USER)
+    console.log(process.env.EMAIL_PASS)
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log("✅ Email sent successfully!");
+    } catch (emailErr) {
+      console.error("❌ Failed to send email:", emailErr);
+      return res.status(500).json({
+        message: "Error sending email",
+        error: emailErr.message,
+      });
+    }
     res.status(200).json({ message: "Food claimed successfully!" });
   } catch (error) {
     res.status(500).json({ message: "Error claiming food", error: error.message });

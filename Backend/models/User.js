@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     phone: { type: String },
     address:{type:String},
-    image: { type: String, default: "https://via.placeholder.com/150" },
+    image: { type: String,},
     donated: [
       {
         foodItemId: { type: mongoose.Schema.Types.ObjectId, ref: "FoodItem" }, // Reference to claimed food item
