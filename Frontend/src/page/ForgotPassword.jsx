@@ -7,13 +7,13 @@ export default function ForgotPassword() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const API = import.meta.env.VITE_REACT_APP_API;
-
+   const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(null);
     setError(null);
     setLoading(true);
-     const navigate = useNavigate();
+    
     try {
       const res = await fetch(`${API}/api/auth/forgot-password`, {
         method: "POST",
