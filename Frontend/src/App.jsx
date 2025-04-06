@@ -16,7 +16,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import EditProfile from "./page/EditProfile";
 import ClaimedFood from "./page/ClaimedFood";
 import DonatedFood from "./page/DonatedFood";
-import ForgotPassword from "./page/forgotpassword";
+import ForgotPassword from "./page/ForgotPassword";
 
 function App() {
   return (
