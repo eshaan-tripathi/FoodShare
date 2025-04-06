@@ -87,7 +87,7 @@ const DonatedFood = () => {
                   </td>
                   <td className="p-3 bg-white text-green-600 text-center">
                    { food.claimerEmail==null?"N/A":
-                    <a href={`${API}profile/${food.claimerEmail}`}>
+                    <a href={`${API}/profile/${food.claimerEmail}`}>
                     {food.claimerName}
                     </a>
                    }
