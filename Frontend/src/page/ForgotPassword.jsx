@@ -1,19 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState(null);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const API = import.meta.env.VITE_REACT_APP_API;
-   const navigate = useNavigate();
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(null);
-    setError(null);
     setLoading(true);
-    
+
     try {
       const res = await fetch(`${API}/api/auth/forgot-password`, {
         method: "POST",
@@ -27,11 +25,11 @@ export default function ForgotPassword() {
         throw new Error(data.message || "Something went wrong.");
       }
 
-      setMessage("Password reset link sent to your email.");
+      toast.success("Password reset link sent to your email.");
       setEmail("");
-      navigate("/");
+      navigate("/login");
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message || "Failed to send reset link.");
     } finally {
       setLoading(false);
     }
@@ -63,13 +61,6 @@ export default function ForgotPassword() {
             {loading ? "Sending..." : "Send Reset Link"}
           </button>
         </form>
-
-        {message && (
-          <p className="mt-4 text-green-400 text-sm text-center">{message}</p>
-        )}
-        {error && (
-          <p className="mt-4 text-red-400 text-sm text-center">{error}</p>
-        )}
       </div>
     </div>
   );
