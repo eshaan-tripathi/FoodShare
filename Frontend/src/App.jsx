@@ -4,7 +4,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Signup from "./page/Signup";
 import Login from "./page/Login";
-import NotFound from "./page/Notfound";
+import NotFound from "./page/NotFound";
 import About from "./page/About";
 import ContactUs from "./page/ContactUs";
 import { ToastContainer } from "react-toastify";
