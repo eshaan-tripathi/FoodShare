@@ -80,7 +80,7 @@ const ClaimedFood = () => {
         </td>
         <td className="p-3 bg-white text-green-600 text-center">
                    
-                    <a href={`http://localhost:5173/profile/${food.donorDetails.email}`}>
+                    <a href={`${API}/profile/${food.donorDetails.email}`}>
                     {food.donorDetails.name}
                     </a>
                    
