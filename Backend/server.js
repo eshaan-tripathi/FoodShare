@@ -11,7 +11,7 @@ const { addFood, getClaimedFood, getDonatedFood } = require('./controllers/foodC
 const app = express();
 const userRoutes = require('./routes/userRoutes')
 // Middleware
-const allowedOrigins = ["http://localhost:5173"]; // Add frontend origin
+const allowedOrigins = ["https://foodshare-ir6g.onrender.com"]; // Add frontend origin
 
 app.use(cors({
   origin: allowedOrigins,
