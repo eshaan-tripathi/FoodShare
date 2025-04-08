@@ -18,8 +18,8 @@ export default function Testimonials() {
           <div className="flex items-center space-x-4">
             <img src="https://th.bing.com/th/id/R.47d1cc4b137f211cb1c3dfa2135bacba?rik=ZyqfGjPxlsy%2fcQ&riu=http%3a%2f%2fgenslerzudansdentistry.com%2fwp-content%2fuploads%2f2015%2f11%2fanonymous-user.png&ehk=dJX%2fxGNqMoZrDjZmTuHpot4p8blz6HCbhb%2bTyBYlXDU%3d&risl=&pid=ImgRaw&r=0" alt="Sarah Steiner" className="w-12 h-12 rounded-full" />
             <div>
-              <p className="font-semibold">Sarah Steiner</p>
-              <p className="text-sm text-gray-500">VP Sales at Google</p>
+              <p className="font-semibold">Ritvik Das</p>
+              <p className="text-sm text-gray-500">College Student</p>
             </div>
           </div>
         </div>
@@ -32,8 +32,8 @@ export default function Testimonials() {
           <div className="flex items-center space-x-4">
             <img src="https://th.bing.com/th/id/R.47d1cc4b137f211cb1c3dfa2135bacba?rik=ZyqfGjPxlsy%2fcQ&riu=http%3a%2f%2fgenslerzudansdentistry.com%2fwp-content%2fuploads%2f2015%2f11%2fanonymous-user.png&ehk=dJX%2fxGNqMoZrDjZmTuHpot4p8blz6HCbhb%2bTyBYlXDU%3d&risl=&pid=ImgRaw&r=0" alt="Dylan Ambrose" className="w-12 h-12 rounded-full" />
             <div>
-              <p className="font-semibold">Dylan Ambrose</p>
-              <p className="text-sm text-gray-500">Lead marketer at Netflix</p>
+              <p className="font-semibold">Ramesh Kumar</p>
+              <p className="text-sm text-gray-500">Factory Worker</p>
             </div>
           </div>
         </div>
@@ -46,8 +46,8 @@ export default function Testimonials() {
           <div className="flex items-center space-x-4">
             <img src="https://th.bing.com/th/id/R.47d1cc4b137f211cb1c3dfa2135bacba?rik=ZyqfGjPxlsy%2fcQ&riu=http%3a%2f%2fgenslerzudansdentistry.com%2fwp-content%2fuploads%2f2015%2f11%2fanonymous-user.png&ehk=dJX%2fxGNqMoZrDjZmTuHpot4p8blz6HCbhb%2bTyBYlXDU%3d&risl=&pid=ImgRaw&r=0" alt="Gabrielle Winn" className="w-12 h-12 rounded-full" />
             <div>
-              <p className="font-semibold">Gabrielle Winn</p>
-              <p className="text-sm text-gray-500">Co-founder of Acme Inc</p>
+              <p className="font-semibold">Kashmeer Grover</p>
+              <p className="text-sm text-gray-500">Entrepreneur </p>
             </div>
           </div>
         </div>
