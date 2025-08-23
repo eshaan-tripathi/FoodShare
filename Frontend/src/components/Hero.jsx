@@ -27,7 +27,7 @@ export default function Hero() {
         {/* Right Column (Image or Illustration) */}
         <div className="mt-12 md:mt-0 md:w-1/2 flex justify-center ml-6">
           <img
-            src="https://i.kinja-img.com/image/upload/c_fill,h_900,q_60,w_1600/8dce25517395ddaffe7bc2c5dd06ab2e.jpg"
+            src="https://th.bing.com/th/id/OIP.7IH_JI6csNY7rg7s3WAbGgHaFi?w=212&h=180&c=7&r=0&o=7&dpr=1.2&pid=1.7&rm=3"
             alt="Hero Illustration"
             className="max-w-full h-auto rounded-2xl"
           />
